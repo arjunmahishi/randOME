@@ -1,38 +1,56 @@
 package main
 
 import (
-	"log"
+	"math/rand"
+	"time"
 
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
-	count     = kingpin.Flag("count", "Number of data points to generate").Short('c').Default("100").Int()
-	frequency = kingpin.Flag("frequency", "Frequency of data points").Short('f').Default("10s").Duration()
-
-	dump = kingpin.Command("dump", "Dump data to stdout")
-
+	// commands
+	printData   = kingpin.Command("print", "print the data to stdout")
 	remoteWrite = kingpin.Command("remote-write", "Remote write to a Prometheus-compatible TSDB")
-	addr        = remoteWrite.Flag("addr", "").URL()
-
 	emitMetrics = kingpin.Command("emit", "Emit metrics over HTTP on a given port (localhost:<port>/metrics)")
-	port        = emitMetrics.Flag("port", "HTTP port for emitting metrics").Default("9090").Int()
+
+	// flags
+	frequency = kingpin.Flag("frequency", "Frequency of data points").Short('f').Default("4s").Duration()
+	confPath  = kingpin.Flag("config", "path to the config file").Short('c').ExistingFile()
+	addr      = remoteWrite.Flag("addr", "the HTTP address of the TSDB. Should include the basic auth info if required").Required().URL()
+	port      = emitMetrics.Flag("port", "HTTP port for emitting metrics").Default("9090").Int()
 )
 
 const (
+	// Version to be overridden at build time
 	Version = "0.0.1"
 )
+
+type metricDumper interface {
+	dumpMetrics([]byte) error
+}
 
 func main() {
 	kingpin.Version(Version)
 	kingpin.Parse()
+	rand.Seed(time.Now().UnixNano())
 
+	config := defaultConfig
+
+	var dumper metricDumper
 	switch kingpin.Parse() {
-	case dump.FullCommand():
-		log.Println("dump")
+	case printData.FullCommand():
+		dumper = &stdout{}
 	case remoteWrite.FullCommand():
-		log.Println("remoteWrite")
+		dumper = newRemoteWriter()
 	case emitMetrics.FullCommand():
-		log.Println("emitMetrics")
+		dumper = newHTTPEmitter()
+	default:
+		kingpin.Usage()
+		return
+	}
+
+	for {
+		dumper.dumpMetrics(generateMetrics(config))
+		time.Sleep(*frequency)
 	}
 }
