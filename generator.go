@@ -4,32 +4,48 @@ import (
 	"fmt"
 	"math/rand"
 	"strings"
+	"sync"
 )
 
 // generateMetrics generates random metrics data in open metrics format
 func generateMetrics(conf *Config) []byte {
-	var metrics []string
+	var (
+		metrics = []string{}
+		wg      = sync.WaitGroup{}
+	)
+
+	wg.Add(len(conf.Metrics))
 	for _, m := range conf.Metrics {
-		labels := labelCombos(m.Labels)
+		go func(mt Metric) {
+			defer wg.Done()
 
-		maxCardinality := len(labels)
-		if m.MaxCardinality > 0 && m.MaxCardinality < maxCardinality {
-			maxCardinality = m.MaxCardinality
-		}
+			labels := labelCombos(mt.Labels)
 
-		for i := 0; i < maxCardinality; i++ {
-			labelVals := []string{}
-			for key, value := range labels[i] {
-				labelVals = append(labelVals, fmt.Sprintf("%s='%s'", key, value))
+			maxCardinality := len(labels)
+			if mt.MaxCardinality > 0 && mt.MaxCardinality < maxCardinality {
+				maxCardinality = mt.MaxCardinality
 			}
 
-			metrics = append(metrics, fmt.Sprintf(
-				"%s{%s} %d", m.Name, strings.Join(labelVals, ","),
-				rand.Intn(m.ValueMax-m.ValueMin)+m.ValueMin,
-			))
-		}
+			for i := 0; i < maxCardinality; i++ {
+				labelVals := []string{}
+				for key, value := range labels[i] {
+					labelVals = append(labelVals, fmt.Sprintf("%s='%s'", key, value))
+				}
+
+				randIn := mt.ValueMax - mt.ValueMin
+				if randIn <= 0 {
+					randIn = 10
+				}
+
+				metrics = append(metrics, fmt.Sprintf(
+					"%s{%s} %d", mt.Name, strings.Join(labelVals, ","),
+					rand.Intn(randIn)+mt.ValueMin,
+				))
+			}
+		}(m)
 	}
 
+	wg.Wait()
 	return []byte(strings.Join(metrics, "\n"))
 }
 

@@ -15,7 +15,7 @@ var (
 
 	// flags
 	frequency = kingpin.Flag("frequency", "Frequency of data points").Short('f').Default("4s").Duration()
-	confPath  = kingpin.Flag("config", "path to the config file").Short('c').ExistingFile()
+	conf      = kingpin.Flag("config", "path to the config file").Short('c').File()
 	addr      = remoteWrite.Flag("addr", "the HTTP address of the TSDB. Should include the basic auth info if required").Required().URL()
 	port      = emitMetrics.Flag("port", "HTTP port for emitting metrics").Default("9090").Int()
 )
@@ -35,6 +35,13 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 
 	config := defaultConfig
+	if *conf != nil {
+		var err error
+		config, err = GetConfig(*conf)
+		if err != nil {
+			kingpin.Fatalf("error parsing config: %v", err)
+		}
+	}
 
 	var dumper metricDumper
 	switch kingpin.Parse() {

@@ -7,35 +7,8 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-/*
----
-num_points: 1000
-frequency: 1
-metrics:
-	- name: cpu_usage
-		type: gauge
-		value_min: 0
-		value_max: 100
-		labels:
-			instance: [localhost:8080]
-			cluster: [dev, prod, staging, test, qa]
-
-  - name: requests_total
-    type: counter
-    labels:
-      method: [GET, POST, PUT, DELETE]
-      status: [200, 400, 404, 500]
-
-  - name: response_time_seconds
-    type: histogram
-    labels:
-      method: [GET, POST, PUT, DELETE]
-*/
-
 type Config struct {
-	NumPoints int      `yaml:"num_points"`
-	Frequency int      `yaml:"frequency"`
-	Metrics   []Metric `yaml:"metrics"`
+	Metrics []Metric `yaml:"metrics"`
 }
 
 type Metric struct {
@@ -49,7 +22,6 @@ type Metric struct {
 
 var (
 	defaultConfig = &Config{
-		Frequency: 1,
 		Metrics: []Metric{
 			{
 				Name:     "cpu_usage",
