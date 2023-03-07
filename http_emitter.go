@@ -32,10 +32,10 @@ func (h *httpEmitter) startServer() {
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", *port), nil))
 }
 
-func (h *httpEmitter) dumpMetrics(metrics []byte) error {
+func (h *httpEmitter) dumpMetrics(metrics *timeSeries) error {
 	h.Lock()
 	defer h.Unlock()
 
-	h.body = metrics
+	h.body = []byte(metrics.String())
 	return nil
 }

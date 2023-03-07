@@ -16,7 +16,7 @@ var (
 	// flags
 	frequency = kingpin.Flag("frequency", "Frequency of data points").Short('f').Default("4s").Duration()
 	conf      = kingpin.Flag("config", "path to the config file").Short('c').File()
-	addr      = remoteWrite.Flag("addr", "the HTTP address of the TSDB. Should include the basic auth info if required").Required().URL()
+	addr      = remoteWrite.Flag("addr", "the HTTP address of the TSDB. Should include the basic auth info if required").Required().String()
 	port      = emitMetrics.Flag("port", "HTTP port for emitting metrics").Default("9090").Int()
 )
 
@@ -26,7 +26,7 @@ const (
 )
 
 type metricDumper interface {
-	dumpMetrics([]byte) error
+	dumpMetrics(*timeSeries) error
 }
 
 func main() {
@@ -47,10 +47,17 @@ func main() {
 	switch kingpin.Parse() {
 	case printData.FullCommand():
 		dumper = &stdout{}
+
 	case remoteWrite.FullCommand():
-		dumper = newRemoteWriter()
+		var err error
+		dumper, err = newRemoteWriter()
+		if err != nil {
+			kingpin.Fatalf("error creating remote writer: %v", err)
+		}
+
 	case emitMetrics.FullCommand():
 		dumper = newHTTPEmitter()
+
 	default:
 		kingpin.Usage()
 		return

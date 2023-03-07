@@ -5,13 +5,46 @@ import (
 	"math/rand"
 	"strings"
 	"sync"
+	"time"
+
+	"github.com/m3db/prometheus_remote_client_golang/promremote"
 )
 
+type timeSeries struct {
+	promremote.TSList
+}
+
+func (ts *timeSeries) String() string {
+	lines := []string{}
+	for _, row := range ts.TSList {
+		var (
+			metricName = ""
+			labelVals  = []string{}
+		)
+
+		for _, label := range row.Labels {
+			if label.Name == "__name__" {
+				metricName = label.Value
+				continue
+			}
+
+			labelVals = append(labelVals, fmt.Sprintf("%s='%s'", label.Name, label.Value))
+		}
+
+		lines = append(lines, fmt.Sprintf(
+			"%s{%s} %d",
+			metricName, strings.Join(labelVals, ","), int64(row.Datapoint.Value),
+		))
+	}
+
+	return strings.Join(lines, "\n")
+}
+
 // generateMetrics generates random metrics data in open metrics format
-func generateMetrics(conf *Config) []byte {
+func generateMetrics(conf *Config) *timeSeries {
 	var (
-		metrics = []string{}
-		wg      = sync.WaitGroup{}
+		ts = promremote.TSList{}
+		wg = sync.WaitGroup{}
 	)
 
 	wg.Add(len(conf.Metrics))
@@ -27,9 +60,18 @@ func generateMetrics(conf *Config) []byte {
 			}
 
 			for i := 0; i < maxCardinality; i++ {
-				labelVals := []string{}
+				currLabels := []promremote.Label{
+					{
+						Name:  "__name__",
+						Value: mt.Name,
+					},
+				}
+
 				for key, value := range labels[i] {
-					labelVals = append(labelVals, fmt.Sprintf("%s='%s'", key, value))
+					currLabels = append(currLabels, promremote.Label{
+						Name:  key,
+						Value: value,
+					})
 				}
 
 				randIn := mt.ValueMax - mt.ValueMin
@@ -37,16 +79,19 @@ func generateMetrics(conf *Config) []byte {
 					randIn = 10
 				}
 
-				metrics = append(metrics, fmt.Sprintf(
-					"%s{%s} %d", mt.Name, strings.Join(labelVals, ","),
-					rand.Intn(randIn)+mt.ValueMin,
-				))
+				ts = append(ts, promremote.TimeSeries{
+					Labels: currLabels,
+					Datapoint: promremote.Datapoint{
+						Timestamp: time.Now(),
+						Value:     float64(rand.Intn(randIn) + mt.ValueMin),
+					},
+				})
 			}
 		}(m)
 	}
 
 	wg.Wait()
-	return []byte(strings.Join(metrics, "\n"))
+	return &timeSeries{ts}
 }
 
 func labelCombos(labels map[string][]string) []map[string]string {

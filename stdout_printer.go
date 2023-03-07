@@ -1,10 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type stdout struct{}
 
-func (m *stdout) dumpMetrics(metrics []byte) error {
-	fmt.Println(string(metrics))
+func (m *stdout) dumpMetrics(metrics *timeSeries) error {
+	fmt.Println(metrics)
 	return nil
 }

@@ -1,6 +1,5 @@
 metrics:
   - name: cpu_usage
-    type: gauge
     value_min: 0
     value_max: 100
     labels:
@@ -8,13 +7,7 @@ metrics:
       cluster: [dev, prod, staging, test, qa]
 
   - name: requests_total
-    type: counter
     max_cardinality: 10
     labels:
       method: [GET, POST, PUT, DELETE]
       status: [200, 400, 404, 500]
-
-  - name: response_time_seconds
-    type: histogram
-    labels:
-      method: [GET, POST, PUT, DELETE]
