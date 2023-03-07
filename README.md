@@ -1,7 +1,6 @@
 # RandOME
 
-A CLI tool to help debug prometheus based TSDB systems
-
+A CLI tool to generate a random stream of open metrics data for debugging prometheus based time series databases
 ---
 
 ### Building locally
@@ -57,7 +56,7 @@ randOME emit -f 5s
 **Remote write to a prometheus compatible storage**
 
 ```
-randOME emit -f 5s --addr http://localhost:8428/api/v1/write
+randOME remote-write -f 5s --addr http://localhost:8428/api/v1/write
 ```
 
 **Defining custom metrics**
