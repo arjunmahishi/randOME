@@ -4,6 +4,36 @@ A CLI tool to generate a random stream of open metrics data for debugging promet
 
 ---
 
+### Easiest way to run
+
+**Emit default metrics**
+
+```bash
+$ docker run -p 9090:9090 arjunmahishi/randome
+```
+
+**Emit custom metrics**
+
+```bash
+ $ cat > sample.yaml <<EOF
+metrics:
+  - name: metric_1
+    value_min: 0
+    value_max: 100
+    labels:
+      instance: [localhost:8080]
+      cluster: [dev, prod, staging, test, qa]
+
+  - name: metric_2
+    max_cardinality: 10
+    labels:
+      method: [GET, POST, PUT, DELETE]
+      status: [200, 400, 404, 500]
+EOF
+
+$ docker run -p 9090:9090 -v $(pwd)/sample.yaml:/app/sample.yaml  arjunmahishi/randome
+```
+
 ### Building locally
 
 ```
@@ -14,7 +44,7 @@ make my_build
 make build
 ```
 
-### How to run
+### How to run the binary
 
 ```
  ➜  randOME --help
