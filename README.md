@@ -9,13 +9,13 @@ A CLI tool to generate a random stream of open metrics data for debugging promet
 **Emit default metrics**
 
 ```bash
-$ docker run -p 9090:9090 arjunmahishi/randome
+$ docker run -d -p 9090:9090 arjunmahishi/randome
 ```
 
 **Emit custom metrics**
 
 ```bash
- $ cat > sample.yaml <<EOF
+$ cat > sample.yaml <<EOF
 metrics:
   - name: metric_1
     value_min: 0
@@ -31,7 +31,35 @@ metrics:
       status: [200, 400, 404, 500]
 EOF
 
-$ docker run -p 9090:9090 -v $(pwd)/sample.yaml:/app/sample.yaml  arjunmahishi/randome
+$ docker run -d -p 9090:9090 -v $(pwd)/sample.yaml:/app/sample.yaml  arjunmahishi/randome
+```
+
+**Remote write default metrics**
+
+```bash
+$ docker run -d -e REMOTE_WRITE_ADDR='http://<prometheus-compatible-host>/api/v1/write' arjunmahishi/randome
+```
+
+**Remote write custom metrics**
+
+```bash
+$ cat > sample.yaml <<EOF
+metrics:
+  - name: metric_1
+    value_min: 0
+    value_max: 100
+    labels:
+      instance: [localhost:8080]
+      cluster: [dev, prod, staging, test, qa]
+
+  - name: metric_2
+    max_cardinality: 10
+    labels:
+      method: [GET, POST, PUT, DELETE]
+      status: [200, 400, 404, 500]
+EOF
+
+$ docker run -d -e REMOTE_WRITE_ADDR='http://<prometheus-compatible-host>/api/v1/write' arjunmahishi/randome
 ```
 
 ### Building locally
@@ -47,7 +75,7 @@ make build
 ### How to run the binary
 
 ```
- ➜  randOME --help
+$ randOME --help
 usage: randOME [<flags>] <command> [<args> ...]
 
 Flags:
@@ -93,7 +121,7 @@ randOME remote-write -f 5s --addr http://localhost:8428/api/v1/write
 **Defining custom metrics**
 
 ```
- ➜  cat sample.yaml
+$ cat sample.yaml
 metrics:
   - name: cpu_usage
     value_min: 0
@@ -108,7 +136,7 @@ metrics:
       method: [GET, POST, PUT, DELETE]
       status: [200, 400, 404, 500]
 
- ➜  randOME print -c sample.yaml -f 5s
+$ randOME print -c sample.yaml -f 5s
 requests_total{status='200',method='GET'} 2
 requests_total{status='400',method='GET'} 7
 requests_total{status='404',method='GET'} 6
