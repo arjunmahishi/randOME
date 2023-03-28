@@ -4,9 +4,9 @@ A CLI tool to generate a random stream of open metrics data for debugging promet
 
 ---
 
-### Configuration
+## Configuration
 
-This tool can be configured with a simple YAML format. Here's a sample config:
+This tool can be configured with a simple YAML file. Here's a sample config:
 
 ```yaml
 metrics:
@@ -35,7 +35,7 @@ metrics:
 | `Labels`      | `map[string][]string`| The labels associated with the metric, as a map of string to string slices (refer to the above examples for the exact format). |
 | `MaxCardinality`| `number`              | The maximum number of unique label value combinations that can be associated with the metric. This field is optional. |
 
-### Easiest way to run
+## Easiest way to run
 
 **Emit default metrics**
 
@@ -93,7 +93,7 @@ EOF
 $ docker run -d -e REMOTE_WRITE_ADDR='http://<prometheus-compatible-host>/api/v1/write' arjunmahishi/randome
 ```
 
-### Building locally
+## Building locally
 
 ```
 # for your OS
@@ -103,7 +103,7 @@ make my_build
 make build
 ```
 
-### Running the binary directly
+## Running the binary directly
 
 ```
 $ randOME --help
