@@ -4,6 +4,37 @@ A CLI tool to generate a random stream of open metrics data for debugging promet
 
 ---
 
+### Configuration
+
+This tool can be configured with a simple YAML format. Here's a sample config:
+
+```yaml
+metrics:
+  - name: metric_1
+    value_min: 0
+    value_max: 100
+    labels:
+      instance: [localhost:8080]
+      cluster: [dev, prod, staging, test, qa]
+
+  - name: metric_2
+    max_cardinality: 10
+    labels:
+      method: [GET, POST, PUT, DELETE]
+      status: [200, 400, 404, 500]
+```
+
+**Attributes**
+
+| Field         | Type                 | Description |
+|---------------|----------------------|-------------|
+| `Name`        | `string`             | The name of the metric. |
+| `ValueMin`    | `number`                | The minimum value that the metric can have. |
+| `ValueMax`    | `number`                | The maximum value that the metric can have. |
+| `Value`       | `number`           | The static value of the metric. This field is optional. |
+| `Labels`      | `map[string][]string`| The labels associated with the metric, as a map of string to string slices (refer to the above examples for the exact format). |
+| `MaxCardinality`| `number`              | The maximum number of unique label value combinations that can be associated with the metric. This field is optional. |
+
 ### Easiest way to run
 
 **Emit default metrics**
@@ -72,7 +103,7 @@ make my_build
 make build
 ```
 
-### How to run the binary
+### Running the binary directly
 
 ```
 $ randOME --help
@@ -97,8 +128,6 @@ Commands:
   emit [<flags>]
     Emit metrics over HTTP on a given port (localhost:<port>/metrics)
 ```
-
-#### Cheat sheet
 
 **Print metrics to STDOUT**
 
@@ -158,3 +187,4 @@ cpu_usage{cluster='staging',instance='localhost:8080'} 80
 cpu_usage{instance='localhost:8080',cluster='test'} 67
 cpu_usage{cluster='qa',instance='localhost:8080'} 59
 ```
+
