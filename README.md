@@ -90,17 +90,19 @@ metrics:
       status: [200, 400, 404, 500]
 EOF
 
-$ docker run -d -e REMOTE_WRITE_ADDR='http://<prometheus-compatible-host>/api/v1/write' arjunmahishi/randome
+$ docker run -d -e REMOTE_WRITE_ADDR='http://<prometheus-compatible-host>/api/v1/write' -v $(pwd)/sample.yaml:/app/sample.yaml arjunmahishi/randome
 ```
 
 ## Building locally
 
 ```
 # for your OS
-make my_build
-
-# for multiple platforms
 make build
+
+# for a specific OS (check the makefile to see if the command is available for the OS you're looking for)
+make build_<platform>
+
+# both commands will create an executable binary in ./bin
 ```
 
 ## Running the binary directly
