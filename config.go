@@ -16,6 +16,7 @@ type Metric struct {
 	Type           string              `yaml:"type"`
 	ValueMin       int                 `yaml:"value_min"`
 	ValueMax       int                 `yaml:"value_max"`
+	Value          *float64            `json:"value"`
 	Labels         map[string][]string `yaml:"labels"`
 	MaxCardinality int                 `yaml:"max_cardinality"`
 }

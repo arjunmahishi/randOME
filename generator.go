@@ -79,11 +79,16 @@ func generateMetrics(conf *Config) *timeSeries {
 					randIn = 10
 				}
 
+				val := float64(rand.Intn(randIn) + mt.ValueMin)
+				if mt.Value != nil {
+					val = *mt.Value
+				}
+
 				ts = append(ts, promremote.TimeSeries{
 					Labels: currLabels,
 					Datapoint: promremote.Datapoint{
 						Timestamp: time.Now(),
-						Value:     float64(rand.Intn(randIn) + mt.ValueMin),
+						Value:     val,
 					},
 				})
 			}
