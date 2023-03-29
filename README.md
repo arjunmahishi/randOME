@@ -2,7 +2,7 @@
 
 A CLI tool to generate a (pseudo)random stream of open metrics data for debugging prometheus based TSDBs and tools that depend on it. This is very similar to [Avalanche](https://github.com/prometheus-community/avalanche). While avalanche focuses more on the "load testing" aspect of things, randOME focuses more on the actual data generated. 
 
-By controlling the shape of the data, users can test, debug, and benchmark specific scenarios related to alerting, visualization, storage, and performance. With randOME, you can create more targeted and meaningful tests that enable you to optimize your systems more effectively.
+By controlling the shape of the data, you can test/debug/benchmark specific scenarios related to alerting, visualization, storage, and performance. With randOME, you can create more targeted and meaningful tests that enable you to optimize your systems more effectively.
 
 ---
 
