@@ -10,6 +10,10 @@ import (
 	"github.com/m3db/prometheus_remote_client_golang/promremote"
 )
 
+type metricGenerator struct {
+	conf *Config
+}
+
 type timeSeries struct {
 	promremote.TSList
 }
@@ -40,15 +44,21 @@ func (ts *timeSeries) String() string {
 	return strings.Join(lines, "\n")
 }
 
+func newMetricGenerator(conf *Config) *metricGenerator {
+	return &metricGenerator{
+		conf: conf,
+	}
+}
+
 // generateMetrics generates random metrics data in open metrics format
-func generateMetrics(conf *Config) *timeSeries {
+func (mg *metricGenerator) yield() *timeSeries {
 	var (
 		ts = promremote.TSList{}
 		wg = sync.WaitGroup{}
 	)
 
-	wg.Add(len(conf.Metrics))
-	for _, m := range conf.Metrics {
+	wg.Add(len(mg.conf.Metrics))
+	for _, m := range mg.conf.Metrics {
 		go func(mt Metric) {
 			defer wg.Done()
 

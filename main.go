@@ -63,8 +63,9 @@ func main() {
 		return
 	}
 
+	generator := newMetricGenerator(config)
 	for {
-		dumper.dumpMetrics(generateMetrics(config))
+		dumper.dumpMetrics(generator.yield())
 		time.Sleep(*frequency)
 	}
 }
