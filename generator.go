@@ -28,7 +28,7 @@ func (ts *timeSeries) String() string {
 				continue
 			}
 
-			labelVals = append(labelVals, fmt.Sprintf("%s='%s'", label.Name, label.Value))
+			labelVals = append(labelVals, fmt.Sprintf("%s=\"%s\"", label.Name, label.Value))
 		}
 
 		lines = append(lines, fmt.Sprintf(

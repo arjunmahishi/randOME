@@ -1,5 +1,5 @@
 NAME := $(shell basename "$(PWD)")
-IMAGE_VERSION := "0.0.1"
+VERSION := "0.0.2"
 
 .PHONY: build
 
@@ -19,9 +19,9 @@ build:
 	go build -o bin/$(NAME) -ldflags "-X main.Version=$(VERSION)"
 
 build_image: build_linux
-	docker build -t arjunmahishi/randome:$(IMAGE_VERSION) .
+	docker build -t arjunmahishi/randome:$(VERSION) .
 	docker build -t arjunmahishi/randome:latest .
 
 release: build_image
-	docker push arjunmahishi/randome:$(IMAGE_VERSION)
+	docker push arjunmahishi/randome:$(VERSION)
 	docker push arjunmahishi/randome:latest
