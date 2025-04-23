@@ -75,12 +75,18 @@ func generateMetrics(conf *Config) *timeSeries {
 					})
 				}
 
-				randIn := mt.ValueMax - mt.ValueMin
-				if randIn <= 0 {
-					randIn = 10
+				// Handle case where ValueMax is equal to or smaller than ValueMin
+				var val float64
+				if mt.ValueMax <= mt.ValueMin {
+					// If max and min are the same or max < min, use the min value exactly
+					val = float64(mt.ValueMin)
+				} else {
+					// Normal case - generate random value between min and max
+					randIn := mt.ValueMax - mt.ValueMin
+					val = float64(rand.Intn(randIn) + mt.ValueMin)
 				}
 
-				val := float64(rand.Intn(randIn) + mt.ValueMin)
+				// Override with fixed value if specified
 				if mt.Value != nil {
 					val = *mt.Value
 				}
